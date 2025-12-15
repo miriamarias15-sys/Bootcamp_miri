@@ -46,47 +46,33 @@ pipeline {
 
         }
  
-        stage('Instalar requirements') {
-
-            steps {
-
-                sh '''
-
-                    . venv/bin/activate
-
-                    pip install -r requirements.txt
-
-                '''
-
-            }
-
-        }
+        
  
         stage('Ejecutar script') {
+  steps {
+    sh '''#!/bin/bash
+      set -e
 
-            steps {
+      # (si no existe el venv, créalo)
+      [ -d venv ] || python3 -m venv venv
 
-                sh '''
+      . venv/bin/activate
 
-                    . venv/bin/activate
- 
-                    if [ -n "$MI_PARAM" ]; then
+      # si tienes dependencias:
+      # pip install -r requirements.txt
 
-                        python3 main.py "$MI_PARAM"
+      if [ -n "${MI_PARAM:-}" ]; then
+        python Python.py "$MI_PARAM"
+      else
+        python Python.py
+      fi
+    '''
+  }
+}
 
-                    else
-
-                        python3 main.py
-
-                    fi
-
-                '''
-
-            }
-
-        }
 
     }
 
 }
  
+
