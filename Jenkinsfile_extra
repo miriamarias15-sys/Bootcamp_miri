@@ -41,12 +41,12 @@ pipeline {
     }
 
     stage('Ejecutar script') {
-  steps {
-    sh '''
-      . venv/bin/activate
-      ls -la
-      python Python_extra.py "$NOMBRE" FICHERO
-    '''
+      steps {
+        sh '''
+          . venv/bin/activate
+          ls -la
+          python Python_extra.py "$NOMBRE" FICHERO
+        '''
   }
 }
 
