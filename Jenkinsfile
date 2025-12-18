@@ -40,10 +40,11 @@ pipeline {
       steps {
         sh '''
           . venv/bin/activate
-          python main.py
+          python Python.py
         '''
       }
     }
   }
 }
+
 
