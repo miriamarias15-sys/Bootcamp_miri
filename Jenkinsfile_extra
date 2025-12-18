@@ -41,14 +41,24 @@ pipeline {
     }
 
     stage('Ejecutar script') {
-      steps {
-        sh '''
-          . venv/bin/activate
-          ls -la
-          python Python_extra.py "$NOMBRE" FICHERO
-        '''
+  steps {
+    sh '''
+      . venv/bin/activate
+
+      echo "Valor del parámetro FICHERO: '$FICHERO'"
+      echo "Archivos en workspace:"
+      ls -la
+
+      if [ -n "$FICHERO" ] && [ -f "$FICHERO" ]; then
+        python Python_extra.py "$NOMBRE" "$FICHERO"
+      else
+        echo "No se ha subido archivo (o no existe). Ejecuto sin fichero."
+        python Python_extra.py "$NOMBRE"
+      fi
+    '''
   }
 }
+
 
   }
 
