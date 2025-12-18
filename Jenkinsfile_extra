@@ -7,11 +7,10 @@ pipeline {
   }
 
   triggers {
-    pollSCM('H/5 * * * *')   // 3) revisa cada ~5 min y ejecuta si hay cambios en main
+    pollSCM('H/5 * * * *')   // revisa cada ~5 min y ejecuta si hay cambios en main
   }
 
   stages {
-
     stage('Info') {
       steps {
         echo "Hola, ${params.NOMBRE}"
@@ -45,7 +44,7 @@ pipeline {
       steps {
         sh '''
           . venv/bin/activate
-          python Python.py "$NOMBRE" "$FICHERO"
+          python Python_extra.py "$NOMBRE" "$FICHERO"
         '''
       }
     }
@@ -53,13 +52,13 @@ pipeline {
 
   post {
     success {
-      echo "✅ Ha salido bien: puedo dejar un mensaje, notificar, o guardar artefactos."
+      echo "la ejecucioon ha salido bien."
     }
     failure {
-      echo "❌ Ha salido mal: aquí iría lo que quieras hacer si falla (avisar, logs, etc.)."
+      echo " la ejecución ha fallado."
     }
     always {
-      echo "Fin de la ejecución (siempre se ejecuta)."
+      echo "Fin de la ejecución."
     }
   }
 }
