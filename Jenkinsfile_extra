@@ -1,0 +1,65 @@
+pipeline {
+  agent any
+
+  parameters {
+    string(name: 'NOMBRE', defaultValue: 'Miriam Arias', description: 'Nombre que usará el script')
+    file(name: 'FICHERO', description: 'Sube un archivo para que lo lea el script')
+  }
+
+  triggers {
+    pollSCM('H/5 * * * *')   // 3) revisa cada ~5 min y ejecuta si hay cambios en main
+  }
+
+  stages {
+
+    stage('Info') {
+      steps {
+        echo "Hola, ${params.NOMBRE}"
+        echo "JOB_NAME=${env.JOB_NAME}"
+        echo "BUILD_NUMBER=${env.BUILD_NUMBER}"
+        echo "NODE_NAME=${env.NODE_NAME}"
+        echo "WORKSPACE=${env.WORKSPACE}"
+      }
+    }
+
+    stage('Crear entorno virtual') {
+      steps {
+        sh '''
+          python3 -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip
+        '''
+      }
+    }
+
+    stage('Instalar requirements.txt') {
+      steps {
+        sh '''
+          . venv/bin/activate
+          pip install -r requirements.txt
+        '''
+      }
+    }
+
+    stage('Ejecutar script') {
+      steps {
+        sh '''
+          . venv/bin/activate
+          python Python.py "$NOMBRE" "$FICHERO"
+        '''
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "✅ Ha salido bien: puedo dejar un mensaje, notificar, o guardar artefactos."
+    }
+    failure {
+      echo "❌ Ha salido mal: aquí iría lo que quieras hacer si falla (avisar, logs, etc.)."
+    }
+    always {
+      echo "Fin de la ejecución (siempre se ejecuta)."
+    }
+  }
+}
