@@ -1,78 +1,49 @@
 pipeline {
+  agent any
 
-    parameters {
+  parameters {
+    string(name: 'NOMBRE', defaultValue: 'Miriam Arias', description: 'Variable definida por el usuario')
+  }
 
-        string(
+  stages {
 
-            name: 'MI_PARAM',
-
-            defaultValue: '',
-
-            description: 'Parámetro opcional para el script'
-
-        )
-
+    stage('Info') {
+      steps {
+        echo "Hola, ${params.NOMBRE}"
+        echo "JOB_NAME=${env.JOB_NAME}"
+        echo "BUILD_NUMBER=${env.BUILD_NUMBER}"
+        echo "NODE_NAME=${env.NODE_NAME}"
+        echo "WORKSPACE=${env.WORKSPACE}"
+      }
     }
- 
-    agent any
- 
-    stages {
 
-        stage('Setup') {
+    stage('Crear entorno virtual') {
+      steps {
+        sh '''
+          python3 -m venv venv
+          . venv/bin/activate
+          python -m pip install --upgrade pip
+        '''
+      }
+    }
 
-            steps {
+    stage('Instalar requirements.txt') {
+      steps {
+        sh '''
+          . venv/bin/activate
+          pip install -r requirements.txt
+        '''
+      }
+    }
 
-                sh '''
-
-                    if [ ! -d "venv" ]; then
-
-                        echo "Creando entorno virtual..."
-
-                        python3 -m venv venv
-
-                    else
-
-                        echo "Entorno virtual ya existe, reutilizando..."
-
-                    fi
- 
-                    . venv/bin/activate
-
-                    pip install --upgrade pip
-
-                '''
-
-            }
-
-        }
- 
-        
- 
-        stage('Ejecutar script') {
-  steps {
-    sh '''#!/bin/bash
-      set -e
-
-      # (si no existe el venv, créalo)
-      [ -d venv ] || python3 -m venv venv
-
-      . venv/bin/activate
-
-      # si tienes dependencias:
-      # pip install -r requirements.txt
-
-      if [ -n "${MI_PARAM:-}" ]; then
-        python Python.py "$MI_PARAM"
-      else
-        python Python.py
-      fi
-    '''
+    stage('Ejecutar script') {
+      steps {
+        sh '''
+          . venv/bin/activate
+          python main.py
+        '''
+      }
+    }
   }
 }
-
-
-    }
-
-}
- 
 
